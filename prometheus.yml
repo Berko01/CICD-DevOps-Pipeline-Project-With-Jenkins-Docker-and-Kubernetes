@@ -1,0 +1,32 @@
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+    # Node Exporter
+  - job_name: 'node_exporter'
+    static_configs:
+      - targets: ['3.71.114.67:9100']
+
+  # Jenkins
+  - job_name: 'jenkins'
+    metrics_path: '/prometheus'
+    static_configs:
+      - targets: ['3.71.114.67:8080']
+
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]  # Look for a HTTP 200 response.
+    static_configs:
+      - targets:
+          - http://prometheus.io
+          - http://3.75.191.93:30853
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 3.120.33.74:9115  # The blackbox exporter's real hostname:port.
